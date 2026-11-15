@@ -1,0 +1,196 @@
+{
+  "name": "OKUConnect - Evaluation Runner",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -656,
+        160
+      ],
+      "id": "75e6940d-b1ac-4faf-991d-b83747b68c07",
+      "name": "Run evaluation"
+    },
+    {
+      "parameters": {
+        "jsCode": "// The 20 evaluation queries (same order as the scoring sheet).\n// Each query gets its own session so earlier answers cannot influence later ones.\nconst QUERIES = [\n  { id: 1, lang: \"EN\", query: \"How do I register as OKU in Malaysia?\" },\n  { id: 2, lang: \"BM\", query: \"Apakah kategori OKU yang diiktiraf oleh JKM?\" },\n  { id: 3, lang: \"EN\", query: \"What is the definition of OKU under the Persons with Disabilities Act 2008?\" },\n  { id: 4, lang: \"BM\", query: \"Siapa yang layak menerima Elaun Pekerja OKU (EPOKU)?\" },\n  { id: 5, lang: \"EN\", query: \"What is Bantuan OKU Tidak Berupaya Bekerja (BTB) and who can apply?\" },\n  { id: 6, lang: \"BM\", query: \"Apakah program Job Coach?\" },\n  { id: 7, lang: \"EN\", query: \"What training does Bengkel Daya offer to OKU?\" },\n  { id: 8, lang: \"BM\", query: \"Apakah Bantuan Alat Sokongan (BAT) dan bagaimana cara memohon?\" },\n  { id: 9, lang: \"EN\", query: \"What help is available for caregivers of bedridden OKU?\" },\n  { id: 10, lang: \"BM\", query: \"Apakah Pusat Kehidupan Berdikari (ILC)?\" },\n  { id: 11, lang: \"BM\", query: \"Apakah pilihan pendidikan khas untuk kanak-kanak OKU?\" },\n  { id: 12, lang: \"EN\", query: \"What is the PERKESO Invalidity Pension and what is the minimum monthly amount?\" },\n  { id: 13, lang: \"BM\", query: \"Apakah dokumen yang diperlukan untuk menuntut Pencen Ilat PERKESO?\" },\n  { id: 14, lang: \"EN\", query: \"What public transport facilities are available for OKU?\" },\n  { id: 15, lang: \"BM\", query: \"Apakah pelepasan cukai yang disediakan untuk OKU?\" },\n  { id: 16, lang: \"EN\", query: \"I am an OKU who is working. What financial help can I get?\" },\n  { id: 17, lang: \"EN\", query: \"How many OKU in Selangor received EPOKU this year?\" },\n  { id: 18, lang: \"BM\", query: \"Berapakah elaun Bajet 2027 untuk pelajar OKU?\" },\n  { id: 19, lang: \"EN\", query: \"How do I renew my passport?\" },\n  { id: 20, lang: \"BM\", query: \"Apakah resepi nasi lemak yang sedap?\" }\n];\nconst run = Date.now().toString(36);\nreturn QUERIES.map((q) => ({ json: { ...q, session_id: `eval-${run}-${q.id}`, started_at: Date.now() } }));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -448,
+        160
+      ],
+      "id": "8261d91d-22d4-4b96-bef8-b259b94e6d5f",
+      "name": "Test queries"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -224,
+        160
+      ],
+      "id": "5b830523-d11a-4348-87a5-27181fcbcc86",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:5678/webhook/dadad677-c640-43a4-b373-19530771ffc9/chat",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ action: 'sendMessage', sessionId: $json.session_id, chatInput: $json.query }) }}",
+        "options": {
+          "timeout": 90000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        0,
+        288
+      ],
+      "id": "ee6b4c51-9166-4fe4-974b-6fe392fc6e67",
+      "name": "Ask OKUConnect",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Record when this answer arrived, together with the query it belongs to.\nconst q = $('Loop Over Items').item.json;\nconst out = typeof $json.output === 'string' ? $json.output.trim() : '';\nreturn { json: { id: q.id, lang: q.lang, query: q.query, answer: out || 'ERROR: no answer returned', started_at: q.started_at, at: Date.now() } };\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        288
+      ],
+      "id": "12f69669-a25b-41d3-983a-60fa38e9d21f",
+      "name": "Stamp answer"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Sort by query ID and estimate each response time from consecutive timestamps.\nconst rows = $input.all().map((i) => i.json).sort((a, b) => a.at - b.at);\nlet prev = rows.length ? rows[0].started_at : 0;\nconst out = rows.map((r) => { const secs = Math.round((r.at - prev) / 100) / 10; prev = r.at; return { ...r, secs }; });\nout.sort((a, b) => a.id - b.id);\nreturn out.map((r) => ({ json: { 'ID': r.id, 'Lang': r.lang, 'Test query': r.query, 'Answer': r.answer, 'Response time (s)': r.secs } }));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "9cd9d51a-2668-437c-8b34-3a0c2f71df18",
+      "name": "Collect results"
+    },
+    {
+      "parameters": {
+        "operation": "xlsx",
+        "options": {
+          "fileName": "okuconnect-eval-answers.xlsx",
+          "sheetName": "Answers"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "61f6a4e7-1773-4880-bedd-57b5d53d7edc",
+      "name": "Answers file"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Run evaluation": {
+      "main": [
+        [
+          {
+            "node": "Test queries",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Test queries": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Collect results",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Ask OKUConnect",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ask OKUConnect": {
+      "main": [
+        [
+          {
+            "node": "Stamp answer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stamp answer": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Collect results": {
+      "main": [
+        [
+          {
+            "node": "Answers file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "3033fa10-9227-4ebf-9de7-79e5436fd492",
+  "meta": {
+    "instanceId": "REDACTED"
+  },
+  "nodeGroups": [],
+  "id": "jhO8uEnj5zHQupl0",
+  "tags": []
+}

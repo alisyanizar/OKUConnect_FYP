@@ -1,0 +1,1461 @@
+{
+  "name": "OKUConnect - Web Ingest",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -4128,
+        448
+      ],
+      "id": "9aefc42a-335d-49ba-9859-536fd0c89797",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8772d97e-b8f1-4227-8c28-1f69bfa41414",
+              "name": "url",
+              "value": "https://www.malaysia.gov.my/my/personas/oku",
+              "type": "string"
+            },
+            {
+              "id": "6c8b318a-2dc1-4188-91bc-a680192c315b",
+              "name": "source_name",
+              "value": "MyGovernment_Persona_OKU",
+              "type": "string"
+            },
+            {
+              "id": "626a20f8-874c-4d77-974b-2c9245b00606",
+              "name": "agency",
+              "value": "Government",
+              "type": "string"
+            },
+            {
+              "id": "14380eb8-8025-49c7-926d-92bfa265fedd",
+              "name": "scheme_name",
+              "value": "N/A",
+              "type": "string"
+            },
+            {
+              "id": "744936c4-6359-4117-91c8-2fb50790acc3",
+              "name": "language",
+              "value": "bm",
+              "type": "string"
+            },
+            {
+              "id": "8f02705b-efd0-4fa1-b614-683e550eaca4",
+              "name": "doc_type",
+              "value": "web",
+              "type": "string"
+            },
+            {
+              "id": "8f43a38c-137e-41fb-877c-5d2b6fe08f57",
+              "name": "effective_date",
+              "value": "15/9/2026",
+              "type": "string"
+            },
+            {
+              "id": "9df6a08a-eeac-468f-b35c-885bb13c6c21",
+              "name": "last_verified",
+              "value": "={{ $now.toFormat('yyyy-MM-dd') }}",
+              "type": "string"
+            },
+            {
+              "id": "bb7bc3d6-7a9e-41dc-a7fb-0244fc1d461a",
+              "name": "bot_token",
+              "value": "YOUR_TELEGRAM_BOT_TOKEN",
+              "type": "string"
+            },
+            {
+              "id": "6b3c7e47-ee74-4ab2-bc36-2a4b84852264",
+              "name": "admin_chat_id",
+              "value": "YOUR_ADMIN_TELEGRAM_CHAT_ID",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        -3904,
+        448
+      ],
+      "id": "d40eb893-5736-4f5e-b8ee-9027ac81738e",
+      "name": "Page details"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "dataPropertyName": "html",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "links",
+              "cssSelector": "a",
+              "returnValue": "attribute",
+              "attribute": "href",
+              "returnArray": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        -3456,
+        448
+      ],
+      "id": "3db94b94-5980-4c16-a50d-2fa18ad80f58",
+      "name": "HTML"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "links",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -3232,
+        448
+      ],
+      "id": "d4abca3b-5993-4e4f-8d07-4924a7a9ca1a",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1b30d342-e97c-4361-8d03-458546ab9d5f",
+              "name": "url",
+              "value": "={{ $json.links.startsWith('http') ? $json.links : 'https://www.malaysia.gov.my' + $json.links }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        -3008,
+        448
+      ],
+      "id": "d7e0f18d-0224-46e6-9a13-0fbeda7cea76",
+      "name": "Make full URL"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a2e5dab5-bd42-4d22-9267-20815f41bbb9",
+              "leftValue": "={{ $json.url }}",
+              "rightValue": "/my/personas/oku/",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "2b9705e6-2d47-467c-af22-2ae4e32a3e25",
+              "leftValue": "={{ $json.url }}",
+              "rightValue": "#",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            },
+            {
+              "id": "3e6849c5-2058-461f-b147-371d54d1c5cc",
+              "leftValue": "={{ $json.url }}",
+              "rightValue": "malaysia.gov.my/portal",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        -2784,
+        448
+      ],
+      "id": "f80edf46-983e-432e-9548-b2c69fa66892",
+      "name": "Filter"
+    },
+    {
+      "parameters": {
+        "compare": "={{ $json.url }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        -2560,
+        448
+      ],
+      "id": "a1064df7-b07c-4740-afbe-859af886fdac",
+      "name": "Remove Duplicates"
+    },
+    {
+      "parameters": {
+        "maxItems": 10
+      },
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        -2336,
+        448
+      ],
+      "id": "997f5750-8922-4131-93fc-8a2ac3ec9a91",
+      "name": "Limit"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -2112,
+        448
+      ],
+      "id": "b5f5265d-5f55-41d3-aa05-d105c5bbb1ea",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "amount": 2
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -1968,
+        288
+      ],
+      "id": "3682fc8e-846b-47bd-86c4-378a6e4dd9bc",
+      "name": "Wait",
+      "webhookId": "62c23101-9f1e-402e-8a97-dd3b818712c2"
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Loop Over Items').item.json.url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "OKUConnect FYP student project"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text",
+              "outputPropertyName": "html"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        -1840,
+        368
+      ],
+      "id": "9de8e9c3-5a4e-4819-a97c-558c606e6315",
+      "name": "Fetch page",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "dataPropertyName": "html",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "content",
+              "cssSelector": "article"
+            },
+            {
+              "key": "title",
+              "cssSelector": "title"
+            }
+          ]
+        },
+        "options": {
+          "trimValues": true,
+          "cleanUpText": true
+        }
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        -1712,
+        368
+      ],
+      "id": "4f19dd22-c813-4b1d-adef-5e860ccefaa5",
+      "name": "Extract Content"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "4d439370-ea1f-4fdf-977e-1670d8cbacb6",
+              "leftValue": "={{ $json.content }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -1488,
+        368
+      ],
+      "id": "b57884e3-cbab-416e-b4b8-7f2d3e59afb2",
+      "name": "Has Content?"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "delete from documents where metadata->>'source_url' = $1;",
+        "options": {
+          "queryReplacement": "={{ $('Loop Over Items').item.json.url }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.7,
+      "position": [
+        -1264,
+        272
+      ],
+      "id": "5415a6f8-d8a2-4fc6-a9d1-2790f7ec50d2",
+      "name": "Remove Old Chunks",
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "tableName": {
+          "__rl": true,
+          "value": "documents",
+          "mode": "list",
+          "cachedResultName": "documents"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        -1040,
+        272
+      ],
+      "id": "6a777658-1a1e-4c39-a156-65b5cd0bd461",
+      "name": "Supabase Vector Store",
+      "credentials": {
+        "supabaseApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -1056,
+        432
+      ],
+      "id": "a8877867-6448-4e91-b0c4-045a21aaf1c8",
+      "name": "Embeddings OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonMode": "expressionData",
+        "jsonData": "={{ $('Extract Content').item.json.content.replace('Komen topik ini', '').trim() }}",
+        "textSplittingMode": "custom",
+        "options": {
+          "metadata": {
+            "metadataValues": [
+              {
+                "name": "source_name",
+                "value": "=MyGov – {{ $('Extract Content').item.json.title }}"
+              },
+              {
+                "name": "source_url",
+                "value": "={{ $('Loop Over Items').item.json.url }}"
+              },
+              {
+                "name": "agency",
+                "value": "MyGov portal"
+              },
+              {
+                "name": "scheme_name",
+                "value": "={{ $('Extract Content').item.json.title }}"
+              },
+              {
+                "name": "language",
+                "value": "bm"
+              },
+              {
+                "name": "doc_type",
+                "value": "scheme page"
+              },
+              {
+                "name": "effective_date",
+                "value": "={{ ($('Extract Content').item.json.content.match(/Tarikh dikemaskini:\\s*([\\d\\/]+)/) || [])[1] || '' }}"
+              },
+              {
+                "name": "last_verified",
+                "value": "={{ $now.toFormat('yyyy-MM-dd') }}"
+              }
+            ]
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        -896,
+        480
+      ],
+      "id": "ebbff033-f1a8-471f-9aaa-183e6732aaaa",
+      "name": "Default Data Loader"
+    },
+    {
+      "parameters": {
+        "chunkOverlap": 200,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        -800,
+        688
+      ],
+      "id": "52f61844-e4cd-498e-8f33-3815eb599c92",
+      "name": "Recursive Character Text Splitter"
+    },
+    {
+      "parameters": {
+        "url": "https://www.malaysia.gov.my/my/personas/oku",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "OKUConnect FYP student project"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text",
+              "outputPropertyName": "html"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        -3680,
+        448
+      ],
+      "id": "4c799cda-0561-45c4-9f60-4f1c0924d288",
+      "name": "Fetch Hub"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "OKUConnect FYP student project"
+            }
+          ]
+        },
+        "options": {
+          "batching": {
+            "batch": {
+              "batchSize": 1,
+              "batchInterval": 2000
+            }
+          },
+          "response": {
+            "response": {
+              "responseFormat": "text",
+              "outputPropertyName": "html"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        -2192,
+        720
+      ],
+      "id": "aa27e700-85f6-4f49-9706-27de1279a9bc",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "dataPropertyName": "html",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "links",
+              "cssSelector": "a",
+              "returnValue": "attribute",
+              "attribute": "href",
+              "returnArray": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        -2048,
+        720
+      ],
+      "id": "3169f1d1-4fde-4414-b7cb-4bf7400a6f11",
+      "name": "Extract sub-links"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "links",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -1904,
+        720
+      ],
+      "id": "39b12e2b-36db-4971-9cbc-f3d9e5f2c831",
+      "name": "Split Out1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1b30d342-e97c-4361-8d03-458546ab9d5f",
+              "name": "url",
+              "value": "={{ $json.links.startsWith('http') ? $json.links : 'https://www.malaysia.gov.my' + $json.links }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        -1760,
+        720
+      ],
+      "id": "86480c98-580b-433c-bb22-5ee2aec5900d",
+      "name": "Make sub URL"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a2e5dab5-bd42-4d22-9267-20815f41bbb9",
+              "leftValue": "={{ $json.url }}",
+              "rightValue": "/my/personas/oku/[^/]+/[^/#?]+$",
+              "operator": {
+                "type": "string",
+                "operation": "regex"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        -1600,
+        720
+      ],
+      "id": "2ee4f989-5224-42a1-9d01-d44634360563",
+      "name": "Keep sub-pages"
+    },
+    {
+      "parameters": {
+        "compare": "selectedFields",
+        "fieldsToCompare": "url",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        -1424,
+        720
+      ],
+      "id": "c097d94a-d560-4e7f-bc02-7e9790931bc4",
+      "name": "Remove Duplicates1"
+    },
+    {
+      "parameters": {
+        "maxItems": 100
+      },
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        -1232,
+        720
+      ],
+      "id": "417b4f89-2ef3-41b2-a8e0-292ab4d54e2d",
+      "name": "Limit1"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 8,
+              "triggerAtMinute": 13
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -4128,
+        240
+      ],
+      "id": "bc438259-3ad3-4604-9235-72c984382748",
+      "name": "Every Monday 8:13am"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "select hash from page_hashes where url = $1;",
+        "options": {
+          "queryReplacement": "={{ $('Loop Over Items').item.json.url }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -1376,
+        368
+      ],
+      "id": "737eff4b-d236-4503-86dd-5eb68bec093f",
+      "name": "Get stored hash",
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "e9e94dba-ad99-48b9-bdd3-a06b5be9a81d",
+              "leftValue": "={{ $json.hash || '' }}",
+              "rightValue": "={{ $('Extract Content').item.json.content.hash('sha256') }}",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1264,
+        368
+      ],
+      "id": "8a1c0015-4203-427f-90eb-f16e7bc372c5",
+      "name": "Changed?"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "insert into page_hashes (url, hash, last_checked, last_changed) values ($1, $2, now(), now()) on conflict (url) do update set hash = excluded.hash, last_checked = now(), last_changed = now();",
+        "options": {
+          "queryReplacement": "={{ $('Loop Over Items').item.json.url }},{{ $('Extract Content').item.json.content.hash('sha256') }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -832,
+        144
+      ],
+      "id": "a444b278-0480-49cd-9f7a-ac54b01be41e",
+      "name": "Save hash",
+      "alwaysOutputData": true,
+      "executeOnce": true,
+      "credentials": {
+        "postgres": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "insert into page_hashes (url, hash, last_checked) values ($1, $2, now()) on conflict (url) do update set last_checked = now();",
+        "options": {
+          "queryReplacement": "={{ $('Loop Over Items').item.json.url }},{{ $('Extract Content').item.json.content.hash('sha256') }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -1040,
+        544
+      ],
+      "id": "e3f08b23-a601-4492-8e85-cbad9b8a3986",
+      "name": "Mark checked",
+      "alwaysOutputData": true,
+      "executeOnce": true,
+      "credentials": {
+        "postgres": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "select count(*) filter (where last_checked > now() - interval '3 hours') as checked, count(*) filter (where last_changed > now() - interval '3 hours') as changed, coalesce(string_agg(url, E'\\n') filter (where last_changed > now() - interval '3 hours'), '') as changed_urls from page_hashes;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -1888,
+        48
+      ],
+      "id": "27a09a36-35af-4517-ba64-11488e801bba",
+      "name": "Weekly summary",
+      "alwaysOutputData": true,
+      "executeOnce": true,
+      "credentials": {
+        "postgres": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://api.telegram.org/bot' + $('Page details').first().json.bot_token + '/sendMessage' }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.payload) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1008,
+        -128
+      ],
+      "id": "e1e1b576-fe9f-4641-b1e1-fd51465e4a17",
+      "name": "Send summary",
+      "executeOnce": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "select distinct on (d.metadata->>'source_url') d.metadata->>'source_url' as url, d.metadata->>'scheme_name' as title from documents d join page_hashes p on p.url = d.metadata->>'source_url' where p.last_changed > now() - interval '3 hours' order by d.metadata->>'source_url';",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -1680,
+        48
+      ],
+      "id": "8d3e6399-3fd7-4219-b2ce-cbcad415fcb3",
+      "name": "Changed pages",
+      "alwaysOutputData": true,
+      "executeOnce": true,
+      "credentials": {
+        "postgres": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "select chat_id, lang from subscribers where subscribed = true;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -1008,
+        48
+      ],
+      "id": "e8ff32d4-0224-4348-9e89-25142dfea39a",
+      "name": "Get subscribers",
+      "alwaysOutputData": true,
+      "executeOnce": true,
+      "credentials": {
+        "postgres": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Builds the weekly \"Scheme of the week\" message for each subscriber in their language.\nconst picks = $('Pick spotlight').all().map((i) => i.json);\nconst answers = $input.all().map((i) => i.json);\nconst subs = $('Get subscribers').all().map((i) => i.json).filter((s) => s.chat_id);\n\nconst esc = (s) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst fmt = (a) => esc(a)\n  .replace(/\\[([^\\]]+)\\]\\((https?:\\/\\/[^\\s)]+)\\)/g, '<a href=\"$2\">$1</a>')\n  .replace(/\\*\\*(.+?)\\*\\*/g, '<b>$1</b>')\n  .replace(/^#{1,6}\\s*(.+)$/gm, '<b>$1</b>')\n  .replace(/^\\s*[-*]\\s+/gm, '• ');\n\nconst T = {\n  en: { head: '📢 <b>OKUConnect weekly update</b>', spot: '💡 <b>Scheme of the week:</b> ', fail: 'This week\\'s spotlight is not available. Tap the menu to explore topics.', note: 'ℹ️ Always confirm important details with the agency.', more: '📚 Related questions', menu: '🏠 Main menu', stop: '🔕 Stop weekly updates' },\n  ms: { head: '📢 <b>Kemas kini mingguan OKUConnect</b>', spot: '💡 <b>Skim minggu ini:</b> ', fail: 'Sorotan minggu ini tidak tersedia. Tekan menu untuk meneroka topik.', note: 'ℹ️ Sentiasa sahkan butiran penting dengan agensi.', more: '📚 Soalan berkaitan', menu: '🏠 Menu utama', stop: '🔕 Hentikan kemas kini mingguan' },\n};\n\nconst byLang = {};\npicks.forEach((p, i) => {\n  const out = answers[i] && typeof answers[i].output === 'string' ? answers[i].output.trim() : '';\n  byLang[p.lang] = { ...p, answer: out };\n});\n\nreturn subs.map((s) => {\n  const L = s.lang === 'en' ? 'en' : 'ms';\n  const t = T[L];\n  const p = byLang[L] || {};\n  let text = `${t.head}\\n\\n${t.spot}${esc((p.scheme || '').replace(/^./, (c) => c.toUpperCase()))}\\n\\n`;\n  text += p.answer ? fmt(p.answer) : t.fail;\n  text += `\\n\\n${t.note}`;\n  if (text.length > 4000) text = text.slice(0, 3990) + '…';\n  const kb = [];\n  if (p.topic) kb.push([{ text: t.more, callback_data: `n:t:${p.topic}` }]);\n  kb.push([{ text: t.menu, callback_data: 'n:home' }], [{ text: t.stop, callback_data: 'n:unsub' }]);\n  return { json: { payload: { chat_id: s.chat_id, text, parse_mode: 'HTML', disable_web_page_preview: true, reply_markup: { inline_keyboard: kb } } } };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -352,
+        48
+      ],
+      "id": "c50a997f-a0f5-4e57-89b6-fa0495fed3a9",
+      "name": "Build digests"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://api.telegram.org/bot' + $('Page details').first().json.bot_token + '/sendMessage' }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.payload) }}",
+        "options": {
+          "batching": {
+            "batch": {
+              "batchSize": 1,
+              "batchInterval": 100
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -128,
+        48
+      ],
+      "id": "fc00ef3e-f127-4b15-8d81-22a4e68e0824",
+      "name": "Send digest",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Builds a readable admin summary: counts, then changed pages grouped by topic with clickable titles.\nconst s = $('Weekly summary').first().json;\nconst pages = $('Changed pages').all().map((i) => i.json).filter((p) => p.url);\nconst checked = Number(s.checked) || 0;\nconst changed = Number(s.changed) || 0;\nconst esc = (v) => String(v || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\n\nconst TOPICS = {\n  'mengesahkan-status-oku': '🪪 Status & registration',\n  'panduan-penjagaan-dan-bantuan-kesihatan-oku': '🩺 Health & care',\n  'institusi-kebajikan-dan-program-oku': '🏠 Welfare institutions',\n  'mendapatkan-bantuan-pendidikan-oku': '🎓 Education',\n  'mendapatkan-bantuan-pekerjaan-oku': '💼 Employment',\n  'mobiliti-dan-kemudahan-oku-untuk-bergerak': '♿ Mobility & facilities',\n};\n\nconst when = $now.setZone('Asia/Kuala_Lumpur').toFormat('d LLL yyyy, h:mm a');\nlet text = `📋 <b>Weekly knowledge base check</b>\\n🗓 ${when}\\n\\n`;\ntext += `✅ ${checked} pages checked\\n🔄 ${changed} updated  ·  ⏸ ${Math.max(checked - changed, 0)} unchanged`;\n\nif (changed === 0) {\n  text += '\\n\\nNo changes this week. The knowledge base is up to date.';\n} else {\n  if (checked > 0 && changed === checked) {\n    text += '\\n\\nℹ️ <i>Every page was re-processed. This is normal on the first run, or if the website changed its layout.</i>';\n  }\n  const groups = {};\n  for (const p of pages) {\n    const slug = (p.url.split('/oku/')[1] || '').split('/')[0];\n    const name = TOPICS[slug] || '📄 Other';\n    (groups[name] = groups[name] || []).push(`<a href=\"${esc(p.url)}\">${esc(p.title || 'Page')}</a>`);\n  }\n  text += '\\n\\n<b>Updated pages</b>';\n  for (const [name, links] of Object.entries(groups)) {\n    text += `\\n\\n<b>${esc(name)}</b> (${links.length})\\n${links.join(' · ')}`;\n  }\n}\n\nreturn [{ json: { payload: { chat_id: $('Page details').first().json.admin_chat_id, text, parse_mode: 'HTML', disable_web_page_preview: true } } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1232,
+        -128
+      ],
+      "id": "ddd4f1b5-0e03-4c7a-bbc3-cc161df54c8a",
+      "name": "Format summary"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Picks this week's scheme (rotates weekly) and prepares one RAG question per subscriber language.\nconst subs = $input.all().map((i) => i.json).filter((s) => s.chat_id);\nif (!subs.length) return [];\n\nconst SCHEMES = [\n  { topic: 'kad', en: 'Kad OKU and OKU registration with JKM', ms: 'Kad OKU dan pendaftaran OKU dengan JKM' },\n  { topic: 'kerja', en: 'Elaun Pekerja OKU (EPOKU)', ms: 'Elaun Pekerja OKU (EPOKU)' },\n  { topic: 'pks', en: 'the PERKESO Invalidity Pension', ms: 'Pencen Ilat PERKESO' },\n  { topic: 'jkm', en: 'Bantuan Alat Sokongan / Alat Tiruan (BAT)', ms: 'Bantuan Alat Sokongan / Alat Tiruan (BAT)' },\n  { topic: 'kerja', en: 'the Job Coach programme', ms: 'program Job Coach' },\n  { topic: 'jkm', en: 'Bantuan Penjagaan OKU Terlantar (BPT)', ms: 'Bantuan Penjagaan OKU Terlantar (BPT)' },\n  { topic: 'edu', en: 'Taska OKU and special education schools', ms: 'Taska OKU dan sekolah pendidikan khas' },\n  { topic: 'kerja', en: 'Bantuan OKU Tidak Berupaya Bekerja (BTB)', ms: 'Bantuan OKU Tidak Berupaya Bekerja (BTB)' },\n  { topic: 'agensi', en: 'Program Pemulihan Dalam Komuniti (PDK)', ms: 'Program Pemulihan Dalam Komuniti (PDK)' },\n  { topic: 'kerja', en: 'Bengkel Daya for OKU', ms: 'Bengkel Daya untuk OKU' },\n  { topic: 'agensi', en: 'Independent Living Centres (ILC) for OKU', ms: 'Pusat Kehidupan Berdikari (ILC) untuk OKU' },\n  { topic: 'hak', en: 'public transport facilities and discounts for OKU', ms: 'kemudahan dan diskaun pengangkutan awam untuk OKU' },\n  { topic: 'kwsp', en: 'KWSP withdrawal for members with a disability', ms: 'pengeluaran KWSP bagi ahli yang hilang upaya' },\n  { topic: 'hak', en: 'tax relief for OKU and their families', ms: 'pelepasan cukai untuk OKU dan keluarga' },\n];\n\nconst start = new Date(Date.UTC(new Date().getUTCFullYear(), 0, 1));\nconst week = Math.floor((Date.now() - start) / (7 * 86400000));\nconst pick = SCHEMES[week % SCHEMES.length];\nconst langs = [...new Set(subs.map((s) => (s.lang === 'en' ? 'en' : 'ms')))];\n\nreturn langs.map((lang) => ({\n  json: {\n    lang,\n    topic: pick.topic,\n    scheme: pick[lang],\n    session_id: `digest-${start.getUTCFullYear()}-w${week}-${lang}`,\n    question: lang === 'en'\n      ? `Write a short weekly spotlight about ${pick.en} for OKU and their caregivers: what it is, who can get it, and how to apply. Use at most 120 words and short bullet points.`\n      : `Tulis sorotan mingguan yang ringkas tentang ${pick.ms} untuk OKU dan penjaga: apa itu, siapa yang layak, dan cara memohon. Gunakan paling banyak 120 patah perkataan dan poin ringkas.`,\n  },\n}));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -800,
+        48
+      ],
+      "id": "a3ba0144-4f71-4249-8fa0-4b36234de62b",
+      "name": "Pick spotlight"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:5678/webhook/dadad677-c640-43a4-b373-19530771ffc9/chat",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ action: 'sendMessage', sessionId: $json.session_id, chatInput: $json.question }) }}",
+        "options": {
+          "batching": {
+            "batch": {
+              "batchSize": 1,
+              "batchInterval": 0
+            }
+          },
+          "timeout": 90000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -576,
+        48
+      ],
+      "id": "e400cc71-f198-491b-9601-3601230f6fe4",
+      "name": "Ask spotlight",
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Page details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Page details": {
+      "main": [
+        [
+          {
+            "node": "Fetch Hub",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Make full URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Make full URL": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Remove Duplicates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Duplicates": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Weekly summary",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Fetch page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch page": {
+      "main": [
+        [
+          {
+            "node": "Extract Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Content": {
+      "main": [
+        [
+          {
+            "node": "Has Content?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Content?": {
+      "main": [
+        [
+          {
+            "node": "Get stored hash",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Old Chunks": {
+      "main": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase Vector Store": {
+      "main": [
+        [
+          {
+            "node": "Save hash",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Hub": {
+      "main": [
+        [
+          {
+            "node": "HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Extract sub-links",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract sub-links": {
+      "main": [
+        [
+          {
+            "node": "Split Out1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out1": {
+      "main": [
+        [
+          {
+            "node": "Make sub URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Make sub URL": {
+      "main": [
+        [
+          {
+            "node": "Keep sub-pages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Keep sub-pages": {
+      "main": [
+        [
+          {
+            "node": "Remove Duplicates1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Duplicates1": {
+      "main": [
+        [
+          {
+            "node": "Limit1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every Monday 8:13am": {
+      "main": [
+        [
+          {
+            "node": "Page details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get stored hash": {
+      "main": [
+        [
+          {
+            "node": "Changed?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Changed?": {
+      "main": [
+        [
+          {
+            "node": "Remove Old Chunks",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mark checked",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save hash": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark checked": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Weekly summary": {
+      "main": [
+        [
+          {
+            "node": "Changed pages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send summary": {
+      "main": [
+        [
+          {
+            "node": "Get subscribers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Changed pages": {
+      "main": [
+        [
+          {
+            "node": "Format summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get subscribers": {
+      "main": [
+        [
+          {
+            "node": "Pick spotlight",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build digests": {
+      "main": [
+        [
+          {
+            "node": "Send digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format summary": {
+      "main": [
+        [
+          {
+            "node": "Send summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pick spotlight": {
+      "main": [
+        [
+          {
+            "node": "Ask spotlight",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ask spotlight": {
+      "main": [
+        [
+          {
+            "node": "Build digests",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "9e257c42-95d8-49cb-992d-03301fa8889d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "REDACTED"
+  },
+  "nodeGroups": [],
+  "id": "bJPeRJESK6k0sQ7K",
+  "tags": []
+}

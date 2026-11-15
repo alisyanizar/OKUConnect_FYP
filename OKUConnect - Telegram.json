@@ -1,0 +1,646 @@
+{
+  "name": "OKUConnect - Telegram",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message",
+          "callback_query"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -656,
+        864
+      ],
+      "id": "5333b270-0c21-43a7-95b0-31d9243b0653",
+      "name": "Telegram Trigger",
+      "webhookId": "ba336359-0849-4bf3-8093-b737168b70fd",
+      "credentials": {
+        "telegramApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "17027f04-0022-4f52-92e8-966d2548dc4d",
+              "name": "bot_token",
+              "value": "YOUR_TELEGRAM_BOT_TOKEN",
+              "type": "string"
+            },
+            {
+              "id": "a161e7ee-c802-499e-b567-beda122afa35",
+              "name": "chat_url",
+              "value": "http://localhost:5678/webhook/dadad677-c640-43a4-b373-19530771ffc9/chat",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -448,
+        864
+      ],
+      "id": "9f2197f5-9c18-4582-ad24-17f92eb52ca0",
+      "name": "Config"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// OKUConnect Telegram router: decides what to show for every message or button press.\n// Language choice, conversation number and feedback are kept in this workflow's static data\n// (saved only for published/production runs).\nconst sd = $getWorkflowStaticData('global');\nsd.users = sd.users || {};\nsd.feedback = sd.feedback || [];\n\nconst TOPICS = {\n  en: [\n    { id: 'kad', icon: '🪪', title: 'Register as OKU and get a Kad OKU', q: ['How do I register for a Kad OKU?', 'What documents do I need to register as OKU?', 'What can I use my Kad OKU for?'] },\n    { id: 'jkm', icon: '💰', title: 'Money help from JKM', q: ['What financial aid can OKU get from JKM?', 'Who can apply for JKM aid for OKU?', 'How do I apply for JKM financial aid?'] },\n    { id: 'pks', icon: '💼', title: 'PERKESO (SOCSO) benefits', q: ['What benefits does PERKESO give for disability?', 'What is the PERKESO Invalidity Pension?', 'How do I make a claim with PERKESO?'] },\n    { id: 'kwsp', icon: '🏦', title: 'KWSP (EPF) savings', q: ['Can I withdraw my KWSP savings if I have a disability?', 'What documents does KWSP need for a disability withdrawal?'] },\n    { id: 'hak', icon: '⚖️', title: 'Your rights as OKU', q: ['What rights do OKU have under Akta OKU 2008?', 'What are my rights at work as an OKU?', 'What can I do if a public place is not accessible?'] },\n    { id: 'edu', icon: '🎓', title: 'Education help', q: ['What education help is there for OKU students?', 'What is the BKOKU financial aid for OKU students?'] },\n    { id: 'kerja', icon: '🛠️', title: 'Jobs and training', q: ['What is the EPOKU allowance?', 'What is the Job Coach programme?', 'What is Bengkel Daya?'] },\n    { id: 'agensi', icon: '🏛️', title: 'Agencies and organisations', q: ['Which agencies help OKU in Malaysia?', 'Where can I find an OKU care centre?'] },\n  ],\n  ms: [\n    { id: 'kad', icon: '🪪', title: 'Daftar OKU dan Kad OKU', q: ['Bagaimana cara memohon Kad OKU?', 'Apakah dokumen yang diperlukan untuk mendaftar sebagai OKU?', 'Apakah kegunaan Kad OKU?'] },\n    { id: 'jkm', icon: '💰', title: 'Bantuan kewangan JKM', q: ['Apakah bantuan kewangan JKM untuk OKU?', 'Siapa yang layak memohon bantuan JKM untuk OKU?', 'Bagaimana cara memohon bantuan kewangan JKM?'] },\n    { id: 'pks', icon: '💼', title: 'Faedah PERKESO', q: ['Apakah faedah PERKESO untuk hilang upaya?', 'Apakah Pencen Ilat PERKESO?', 'Bagaimana cara membuat tuntutan dengan PERKESO?'] },\n    { id: 'kwsp', icon: '🏦', title: 'Simpanan KWSP', q: ['Bolehkah saya mengeluarkan simpanan KWSP jika saya hilang upaya?', 'Apakah dokumen yang KWSP perlukan untuk pengeluaran hilang upaya?'] },\n    { id: 'hak', icon: '⚖️', title: 'Hak anda sebagai OKU', q: ['Apakah hak OKU di bawah Akta OKU 2008?', 'Apakah hak saya sebagai OKU di tempat kerja?', 'Apa yang boleh saya buat jika tempat awam tidak mesra OKU?'] },\n    { id: 'edu', icon: '🎓', title: 'Bantuan pendidikan', q: ['Apakah bantuan pendidikan untuk pelajar OKU?', 'Apakah bantuan kewangan BKOKU untuk pelajar OKU?'] },\n    { id: 'kerja', icon: '🛠️', title: 'Pekerjaan dan latihan', q: ['Apakah Elaun Pekerja OKU (EPOKU)?', 'Apakah program Job Coach?', 'Apakah Bengkel Daya?'] },\n    { id: 'agensi', icon: '🏛️', title: 'Agensi dan pertubuhan', q: ['Agensi manakah yang membantu OKU di Malaysia?', 'Di manakah saya boleh mencari pusat jagaan OKU?'] },\n  ],\n};\n\nconst SITES = [\n  { name: 'JKM', url: 'https://www.jkm.gov.my', en: 'OKU registration, Kad OKU and financial aid', ms: 'Pendaftaran OKU, Kad OKU dan bantuan kewangan' },\n  { name: 'MyGOV – OKU', url: 'https://www.malaysia.gov.my/my/personas/oku', en: 'Government portal guide for OKU', ms: 'Panduan portal kerajaan untuk OKU' },\n  { name: 'PERKESO', url: 'https://www.perkeso.gov.my', en: 'Benefits for workers who become disabled', ms: 'Faedah untuk pekerja yang hilang upaya' },\n  { name: 'KWSP', url: 'https://www.kwsp.gov.my', en: 'Withdrawing savings because of disability', ms: 'Pengeluaran simpanan kerana hilang upaya' },\n  { name: 'KKM', url: 'https://www.moh.gov.my', en: 'Health services and medical reports', ms: 'Perkhidmatan kesihatan dan laporan perubatan' },\n];\n\nconst NGOS = [\n  { name: 'NASOM', url: 'https://www.nasom.org.my', en: 'National Autism Society of Malaysia: autism support and centres', ms: 'Persatuan Autisme Kebangsaan Malaysia: sokongan dan pusat autisme' },\n  { name: 'MAB', url: 'https://mab.org.my', en: 'Malaysian Association for the Blind: support for people with vision loss', ms: 'Persatuan Orang Buta Malaysia: sokongan untuk orang cacat penglihatan' },\n  { name: 'Kiwanis Down Syndrome Foundation', url: 'https://kiwanis.org.my/projects/kiwanis-down-syndrome-foundation', en: 'Early intervention for children with Down syndrome', ms: 'Intervensi awal untuk kanak-kanak sindrom Down' },\n  { name: 'Malaysian CARE – PWD Directory', url: 'https://malaysiancare.org/pwd', en: 'Directory to find more services and NGOs near you', ms: 'Direktori untuk mencari lebih banyak perkhidmatan dan NGO berhampiran anda' },\n];\n\nconst TXT = {\n  en: {\n    home: '🏠 <b>Main menu</b>\\n\\nChoose what you need below, or simply type your question at any time.\\n\\nℹ️ Answers come from official sources. Always check important decisions with the agency.',\n    btnTopics: '📚 Topics & questions', btnAsk: '💬 Ask a question', btnSites: '🌐 Official websites', btnNgo: '🤝 NGOs', btnHelp: '📖 How to use', btnLang: '🔤 Bahasa / Language', btnBack: '⬅️ Back', btnHome: '🏠 Main menu', btnMore: '📚 More questions', btnNew: '🔄 New conversation', btnUp: '👍 Helpful', btnDown: '👎 Not helpful', btnSub: '🔔 Weekly updates', btnSubOn: '🔔 Turn on weekly updates', btnSubOff: '🔕 Turn off weekly updates',\n    sub: (on) => `🔔 <b>Weekly updates</b>\\n\\nGet a short message every Monday when OKU aid and service information is updated, plus a helpful tip.\\n\\nStatus: <b>${on ? 'On ✅' : 'Off'}</b>`,\n    subDone: 'Weekly updates turned on ✅', unsubDone: 'Weekly updates turned off',\n    topics: '📚 <b>Topics</b>\\n\\nChoose a topic to see questions you can ask.',\n    topic: (t) => `${t.icon} <b>${t.title}</b>\\n\\nTap a question. The answer will be sent to you.`,\n    ask: '💬 <b>Ask a question</b>\\n\\nType your question in a normal message below, in English or Bahasa Malaysia.\\n\\nExample: <i>How do I register for a Kad OKU?</i>\\n\\n⚠️ Do not send your IC number or other private details.',\n    sites: '🌐 <b>Official websites</b>\\n\\nGo to the agency website to apply or check details.\\n\\n',\n    ngo: '🤝 <b>NGOs that support OKU and caregivers</b>\\n\\n',\n    help: '📖 <b>How to use OKUConnect</b>\\n\\n1. Tap <b>Topics &amp; questions</b> and choose a question, or type your own question.\\n2. Wait a few seconds for the answer.\\n3. Each answer shows its official source. Check important details with the agency.\\n4. Tap 👍 or 👎 to tell us if the answer helped.\\n\\n<b>Commands</b>\\n/menu – Main menu\\n/topics – Topics and questions\\n/language – Change language\\n/new – Start a new conversation\\n/subscribe – Weekly updates on\\n/unsubscribe – Weekly updates off\\n/help – How to use\\n\\n⚠️ Do not send your IC number or other private details.\\n\\nOKUConnect is a final year project prototype. It does not replace advice from government agencies.',\n    textOnly: 'Sorry, I can only read text messages. Please type your question.',\n    newDone: '🔄 New conversation started. Earlier questions are forgotten.',\n    thanks: 'Thank you for your feedback!',\n  },\n  ms: {\n    home: '🏠 <b>Menu utama</b>\\n\\nPilih apa yang anda perlukan di bawah, atau taip soalan anda pada bila-bila masa.\\n\\nℹ️ Jawapan diambil daripada sumber rasmi. Sentiasa sahkan keputusan penting dengan agensi.',\n    btnTopics: '📚 Topik & soalan', btnAsk: '💬 Tanya soalan', btnSites: '🌐 Laman web rasmi', btnNgo: '🤝 NGO', btnHelp: '📖 Cara guna', btnLang: '🔤 Bahasa / Language', btnBack: '⬅️ Kembali', btnHome: '🏠 Menu utama', btnMore: '📚 Soalan lain', btnNew: '🔄 Perbualan baharu', btnUp: '👍 Membantu', btnDown: '👎 Tidak membantu', btnSub: '🔔 Kemas kini mingguan', btnSubOn: '🔔 Hidupkan kemas kini mingguan', btnSubOff: '🔕 Matikan kemas kini mingguan',\n    sub: (on) => `🔔 <b>Kemas kini mingguan</b>\\n\\nTerima mesej ringkas setiap Isnin apabila maklumat bantuan dan perkhidmatan OKU dikemas kini, berserta tip berguna.\\n\\nStatus: <b>${on ? 'Hidup ✅' : 'Mati'}</b>`,\n    subDone: 'Kemas kini mingguan dihidupkan ✅', unsubDone: 'Kemas kini mingguan dimatikan',\n    topics: '📚 <b>Topik</b>\\n\\nPilih topik untuk melihat soalan yang boleh ditanya.',\n    topic: (t) => `${t.icon} <b>${t.title}</b>\\n\\nTekan soalan. Jawapan akan dihantar kepada anda.`,\n    ask: '💬 <b>Tanya soalan</b>\\n\\nTaip soalan anda dalam mesej biasa di bawah, dalam Bahasa Malaysia atau English.\\n\\nContoh: <i>Bagaimana cara memohon Kad OKU?</i>\\n\\n⚠️ Jangan hantar nombor kad pengenalan atau maklumat peribadi lain.',\n    sites: '🌐 <b>Laman web rasmi</b>\\n\\nPergi ke laman web agensi untuk memohon atau menyemak butiran.\\n\\n',\n    ngo: '🤝 <b>NGO yang membantu OKU dan penjaga</b>\\n\\n',\n    help: '📖 <b>Cara guna OKUConnect</b>\\n\\n1. Tekan <b>Topik &amp; soalan</b> dan pilih soalan, atau taip soalan anda sendiri.\\n2. Tunggu beberapa saat untuk jawapan.\\n3. Setiap jawapan menunjukkan sumber rasmi. Sahkan butiran penting dengan agensi.\\n4. Tekan 👍 atau 👎 untuk memberitahu kami sama ada jawapan membantu.\\n\\n<b>Arahan</b>\\n/menu – Menu utama\\n/topics – Topik dan soalan\\n/language – Tukar bahasa\\n/new – Mula perbualan baharu\\n/subscribe – Hidupkan kemas kini mingguan\\n/unsubscribe – Matikan kemas kini mingguan\\n/help – Cara guna\\n\\n⚠️ Jangan hantar nombor kad pengenalan atau maklumat peribadi lain.\\n\\nOKUConnect ialah prototaip projek tahun akhir. Ia tidak menggantikan nasihat agensi kerajaan.',\n    textOnly: 'Maaf, saya hanya boleh membaca mesej teks. Sila taip soalan anda.',\n    newDone: '🔄 Perbualan baharu dimulakan. Soalan sebelum ini telah dilupakan.',\n    thanks: 'Terima kasih atas maklum balas anda!',\n  },\n};\n\nconst LANG_PICK = {\n  text: '👋 <b>Selamat datang ke OKUConnect!</b>\\n<b>Welcome to OKUConnect!</b>\\n\\nMaklumat bantuan, hak dan perkhidmatan untuk OKU di Malaysia.\\nInformation on aid, rights and services for OKU in Malaysia.\\n\\nSila pilih bahasa / Please choose your language:',\n  keyboard: [[{ text: '🇲🇾 Bahasa Malaysia', callback_data: 'lang:ms' }, { text: '🇬🇧 English', callback_data: 'lang:en' }]],\n};\n\nfunction detectLang(text) {\n  const ms = ['yang','dan','untuk','saya','anda','bagaimana','apakah','boleh','tidak','dengan','bantuan','memohon','cara','siapa','bila','manakah','perlu','di','ke','ini'];\n  const words = (text.toLowerCase().match(/[a-z]+/g) || []);\n  const hits = words.filter((w) => ms.includes(w)).length;\n  return hits >= 1 ? 'ms' : 'en';\n}\n\nfunction screen(name, L, arg) {\n  const t = TXT[L];\n  const back = (to) => [{ text: t.btnBack, callback_data: to }];\n  switch (name) {\n    case 'lang': return LANG_PICK;\n    case 'home': return { text: t.home, keyboard: [\n      [{ text: t.btnTopics, callback_data: 'topics' }, { text: t.btnAsk, callback_data: 'ask' }],\n      [{ text: t.btnSites, callback_data: 'sites' }, { text: t.btnNgo, callback_data: 'ngo' }],\n      [{ text: t.btnSub, callback_data: 'sub' }, { text: t.btnHelp, callback_data: 'help' }],\n      [{ text: t.btnLang, callback_data: 'langpick' }],\n    ] };\n    case 'topics': {\n      const rows = TOPICS[L].map((tp) => [{ text: `${tp.icon} ${tp.title}`, callback_data: `t:${tp.id}` }]);\n      rows.push(back('home'));\n      return { text: t.topics, keyboard: rows };\n    }\n    case 'topic': {\n      const tp = TOPICS[L].find((x) => x.id === arg) || TOPICS[L][0];\n      const rows = tp.q.map((q, i) => [{ text: q, callback_data: `q:${tp.id}:${i}` }]);\n      rows.push(back('topics'));\n      return { text: t.topic(tp), keyboard: rows };\n    }\n    case 'ask': return { text: t.ask, keyboard: [back('home')] };\n    case 'sites': return {\n      text: t.sites + SITES.map((s) => `• <b>${s.name}</b>: ${s[L]}`).join('\\n'),\n      keyboard: [...SITES.map((s) => [{ text: `🔗 ${s.name}`, url: s.url }]), back('home')],\n    };\n    case 'ngo': return {\n      text: t.ngo + NGOS.map((s) => `• <b>${s.name}</b>: ${s[L]}`).join('\\n'),\n      keyboard: [...NGOS.map((s) => [{ text: `🔗 ${s.name}`, url: s.url }]), back('home')],\n    };\n    case 'help': return { text: t.help, keyboard: [back('home')] };\n    case 'sub': {\n      const on = !!(arg);\n      return { text: t.sub(on), keyboard: [[on ? { text: t.btnSubOff, callback_data: 'unsub' } : { text: t.btnSubOn, callback_data: 'subon' }], back('home')] };\n    }\n  }\n  return screen('home', L);\n}\n\n// ---------- Read the Telegram update ----------\nconst upd = $json;\nlet chatId, text = null, data = null, messageId = null, callbackId = null;\nif (upd.callback_query) {\n  const cq = upd.callback_query;\n  callbackId = cq.id;\n  data = cq.data || '';\n  chatId = cq.message ? cq.message.chat.id : cq.from.id;\n  messageId = cq.message ? cq.message.message_id : null;\n} else if (upd.message) {\n  chatId = upd.message.chat.id;\n  text = (upd.message.text || '').trim();\n} else {\n  return { json: { mode: 'none' } };\n}\n\nconst key = String(chatId);\nconst user = sd.users[key] = sd.users[key] || { session: 0 };\nconst out = { mode: 'menu', chat_id: chatId, callback_id: callbackId, callback_text: null };\n\nfunction show(name, arg, { edit = true } = {}) {\n  const L = user.lang || 'ms';\n  const s = screen(name, L, arg);\n  const payload = { chat_id: chatId, text: s.text, parse_mode: 'HTML', disable_web_page_preview: true, reply_markup: { inline_keyboard: s.keyboard } };\n  if (edit && messageId) { payload.message_id = messageId; out.method = 'editMessageText'; }\n  else out.method = 'sendMessage';\n  out.payload = payload;\n}\nfunction ask(question, topicId, fromButton) {\n  if (!user.lang) user.lang = detectLang(question);\n  out.mode = 'ask';\n  out.ask = {\n    question,\n    lang: user.lang,\n    topic: topicId || null,\n    from_button: !!fromButton,\n    session_id: `tg-${chatId}-${user.session || 0}`,\n  };\n}\nfunction setSub(on) {\n  user.subscribed = on;\n  out.subscription = { chat_id: key, lang: user.lang || 'ms', subscribed: on };\n}\nfunction notice(msg, then) {\n  // Short confirmation followed by a screen, sent as a new message\n  show(then, null, { edit: false });\n  out.payload.text = msg + '\\n\\n' + out.payload.text;\n}\n\nif (data !== null) {\n  // Buttons under answers start with \"n:\" so menus open as a new message instead of replacing the answer\n  let edit = true;\n  if (data.startsWith('n:')) { edit = false; data = data.slice(2); }\n  if (data.startsWith('lang:')) { user.lang = data.slice(5) === 'en' ? 'en' : 'ms'; if (user.subscribed) setSub(true); show('home', null, { edit }); }\n  else if (data === 'langpick') show('lang', null, { edit });\n  else if (['home', 'topics', 'ask', 'sites', 'ngo', 'help'].includes(data)) show(data, null, { edit });\n  else if (data.startsWith('t:')) show('topic', data.slice(2), { edit });\n  else if (data === 'sub') show('sub', user.subscribed, { edit });\n  else if (data === 'subon' || data === 'unsub') {\n    setSub(data === 'subon');\n    show('sub', user.subscribed, { edit });\n    out.callback_text = TXT[user.lang || 'ms'][data === 'subon' ? 'subDone' : 'unsubDone'];\n  }\n  else if (data.startsWith('q:')) {\n    const [, tid, idx] = data.split(':');\n    const L = user.lang || 'ms';\n    const tp = TOPICS[L].find((x) => x.id === tid);\n    const q = tp && tp.q[Number(idx)];\n    if (q) ask(q, tid, true); else show('topics', null, { edit });\n  }\n  else if (data === 'new') { user.session = (user.session || 0) + 1; notice(TXT[user.lang || 'ms'].newDone, 'home'); }\n  else if (data === 'fb:up' || data === 'fb:dn') {\n    sd.feedback.push({ chat: key, vote: data === 'fb:up' ? 'up' : 'down', at: new Date().toISOString() });\n    if (sd.feedback.length > 500) sd.feedback = sd.feedback.slice(-500);\n    out.mode = 'none';\n    out.feedback = { vote: data === 'fb:up' ? 'up' : 'down', question: user.lastQ || '', session_id: `tg-${chatId}-${user.session || 0}` };\n    out.callback_text = TXT[user.lang || 'ms'].thanks;\n  }\n  else show('home', null, { edit });\n} else {\n  const cmd = text.split(/\\s+/)[0].toLowerCase().replace(/@.*$/, '');\n  if (!text) { show('home', null, { edit: false }); out.payload.text = TXT[user.lang || 'ms'].textOnly; out.payload.reply_markup = { inline_keyboard: [[{ text: TXT[user.lang || 'ms'].btnHome, callback_data: 'n:home' }]] }; }\n  else if (cmd === '/start') { if (user.lang) show('home', null, { edit: false }); else show('lang', null, { edit: false }); }\n  else if (cmd === '/menu') show('home', null, { edit: false });\n  else if (cmd === '/topics') show('topics', null, { edit: false });\n  else if (cmd === '/language' || cmd === '/bahasa') show('lang', null, { edit: false });\n  else if (cmd === '/help') show('help', null, { edit: false });\n  else if (cmd === '/subscribe' || cmd === '/unsubscribe') { setSub(cmd === '/subscribe'); show('sub', user.subscribed, { edit: false }); }\n  else if (cmd === '/new') { user.session = (user.session || 0) + 1; notice(TXT[user.lang || 'ms'].newDone, 'home'); }\n  else if (cmd.startsWith('/')) show('home', null, { edit: false });\n  else ask(text, null, false);\n}\n\nreturn { json: out };\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -224,
+        864
+      ],
+      "id": "b26ee352-a57f-4af8-a84c-ec7456c6c113",
+      "name": "Router"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "dc3704cf-b1a3-4919-bc22-d24d61aa9c7d",
+              "leftValue": "={{ $json.callback_id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        608
+      ],
+      "id": "4da486b2-47ea-4e68-b556-2fac7f5e1e95",
+      "name": "Button pressed?"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://api.telegram.org/bot' + $('Config').first().json.bot_token + '/answerCallbackQuery' }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ callback_query_id: $json.callback_id, text: $json.callback_text || undefined }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        224,
+        608
+      ],
+      "id": "45358767-9377-4048-ace0-618c35294be9",
+      "name": "Answer button",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "2fed3b50-0eee-4835-8e44-9e4ba2285d6b",
+              "leftValue": "={{ $json.mode }}",
+              "rightValue": "ask",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        912
+      ],
+      "id": "e82f6374-73b6-477d-9675-e1730abb3890",
+      "name": "Is question?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "516c23d4-8e87-49bb-acbe-7fa77cd86cde",
+              "leftValue": "={{ $json.mode }}",
+              "rightValue": "menu",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        224,
+        1056
+      ],
+      "id": "de4c56dd-6aee-4f30-9f56-79a96977878c",
+      "name": "Has screen?"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://api.telegram.org/bot' + $('Config').first().json.bot_token + '/' + $json.method }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.payload) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        448,
+        1056
+      ],
+      "id": "8d99b288-63f9-4b0b-bc7e-bb7ef2cdce61",
+      "name": "Show screen",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://api.telegram.org/bot' + $('Config').first().json.bot_token + '/sendChatAction' }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ chat_id: $json.chat_id, action: 'typing' }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        224,
+        816
+      ],
+      "id": "fcde6731-acae-4185-a497-29926fd0854b",
+      "name": "Typing",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Config').first().json.chat_url }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ action: 'sendMessage', sessionId: $('Router').first().json.ask.session_id, chatInput: $('Router').first().json.ask.question }) }}",
+        "options": {
+          "timeout": 90000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        448,
+        816
+      ],
+      "id": "ce7c99c0-0b97-4afb-81c2-52ada695f25d",
+      "name": "Ask OKUConnect",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Turns the RAG answer into Telegram-safe HTML, splits long answers, and adds follow-up buttons.\nconst r = $('Router').first().json;\nconst res = $input.first().json || {};\nconst L = r.ask.lang;\n// Remember the last question so 👍/👎 feedback can be linked to it\nconst sd = $getWorkflowStaticData('global');\nsd.users = sd.users || {};\nconst me = sd.users[String(r.chat_id)] = sd.users[String(r.chat_id)] || { session: 0 };\nme.lastQ = r.ask.question;\nconst T = {\n  en: { fail: 'Sorry, the answer could not be loaded. Please try again in a moment.', up: '👍 Helpful', down: '👎 Not helpful', more: '📚 More questions', home: '🏠 Main menu', nw: '🔄 New conversation' },\n  ms: { fail: 'Maaf, jawapan tidak dapat dimuatkan. Sila cuba lagi sebentar lagi.', up: '👍 Membantu', down: '👎 Tidak membantu', more: '📚 Soalan lain', home: '🏠 Menu utama', nw: '🔄 Perbualan baharu' },\n}[L === 'en' ? 'en' : 'ms'];\n\nconst esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nlet answer = typeof res.output === 'string' && res.output.trim() ? res.output.trim() : T.fail;\n\nlet html = esc(answer)\n  .replace(/\\[([^\\]]+)\\]\\((https?:\\/\\/[^\\s)]+)\\)/g, '<a href=\"$2\">$1</a>')\n  .replace(/\\*\\*(.+?)\\*\\*/g, '<b>$1</b>')\n  .replace(/^#{1,6}\\s*(.+)$/gm, '<b>$1</b>')\n  .replace(/^\\s*[-*]\\s+/gm, '• ');\n\nif (r.ask.from_button) html = `❓ <i>${esc(r.ask.question)}</i>\\n\\n` + html;\n\n// Telegram allows 4096 characters per message\nconst parts = [];\nlet current = '';\nfor (const para of html.split('\\n\\n')) {\n  if ((current + '\\n\\n' + para).length > 3900 && current) { parts.push(current); current = para; }\n  else current = current ? current + '\\n\\n' + para : para;\n}\nif (current) parts.push(current);\n\nconst rows = [[{ text: T.up, callback_data: 'fb:up' }, { text: T.down, callback_data: 'fb:dn' }]];\nconst nav = [];\nif (r.ask.topic) nav.push({ text: T.more, callback_data: `n:t:${r.ask.topic}` });\nnav.push({ text: T.home, callback_data: 'n:home' });\nrows.push(nav);\nrows.push([{ text: T.nw, callback_data: 'n:new' }]);\n\nreturn parts.map((p, i) => ({\n  json: {\n    payload: {\n      chat_id: r.chat_id,\n      text: p,\n      parse_mode: 'HTML',\n      disable_web_page_preview: true,\n      ...(i === parts.length - 1 ? { reply_markup: { inline_keyboard: rows } } : {}),\n    },\n  },\n}));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        816
+      ],
+      "id": "40ac4ba6-2ee3-43ce-8eab-8f764e066d7b",
+      "name": "Format answer"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://api.telegram.org/bot' + $('Config').first().json.bot_token + '/sendMessage' }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.payload) }}",
+        "options": {
+          "batching": {
+            "batch": {
+              "batchSize": 1,
+              "batchInterval": 300
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        816
+      ],
+      "id": "3379f750-8665-4802-a5df-486bbd643d38",
+      "name": "Send answer",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://api.telegram.org/bot' + $('Config').first().json.bot_token + '/sendMessage' }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ chat_id: $('Format answer').item.json.payload.chat_id, text: $('Format answer').item.json.payload.text.replace(/<[^>]+>/g, '').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&'), reply_markup: $('Format answer').item.json.payload.reply_markup }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1104,
+        912
+      ],
+      "id": "5a399fa2-c057-43a8-8170-f0b72dc8b817",
+      "name": "Send plain fallback",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d8af0776-9de6-4be3-9425-d78d094dd87e",
+              "leftValue": "={{ $json.feedback ? 'yes' : '' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        384
+      ],
+      "id": "28cbeb85-e424-475d-ac2f-01eee2deed21",
+      "name": "Is feedback?"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "eb2d85bc-3d1a-48ab-909c-158716fce6b8",
+              "name": "channel",
+              "value": "telegram",
+              "type": "string"
+            },
+            {
+              "id": "4613e1cb-4255-4cf9-9487-40153402afb6",
+              "name": "session",
+              "value": "={{ String($json.feedback.session_id).hash('sha256').slice(0, 12) }}",
+              "type": "string"
+            },
+            {
+              "id": "b6fa586e-d214-454b-b217-9539beefdc7d",
+              "name": "vote",
+              "value": "={{ $json.feedback.vote }}",
+              "type": "string"
+            },
+            {
+              "id": "f1def827-3824-4478-bdef-193d675d7284",
+              "name": "question",
+              "value": "={{ $json.feedback.question }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        224,
+        384
+      ],
+      "id": "cd79fc64-c212-4696-bb9f-4ca08e58d9b1",
+      "name": "Feedback row"
+    },
+    {
+      "parameters": {
+        "tableId": "feedback",
+        "dataToSend": "autoMapInputData"
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        448,
+        384
+      ],
+      "id": "c866d1e6-1431-4769-9602-9b2922101f96",
+      "name": "Save feedback",
+      "credentials": {
+        "supabaseApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Supabase account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c0c45af5-50a6-4541-a304-b941fb5c7699",
+              "leftValue": "={{ $json.subscription ? 'yes' : '' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        176
+      ],
+      "id": "29af47fb-10c2-4463-a10f-1bf78a7b0dcd",
+      "name": "Subscription change?"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "insert into subscribers (chat_id, lang, subscribed, updated_at) values ($1, $2, $3, now()) on conflict (chat_id) do update set lang = excluded.lang, subscribed = excluded.subscribed, updated_at = now();",
+        "options": {
+          "queryReplacement": "={{ $json.subscription.chat_id }},{{ $json.subscription.lang }},{{ $json.subscription.subscribed }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        224,
+        176
+      ],
+      "id": "fa39a441-3033-4a91-b779-514109850bb8",
+      "name": "Save subscription",
+      "credentials": {
+        "postgres": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Postgres account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "Router",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Router": {
+      "main": [
+        [
+          {
+            "node": "Button pressed?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Is question?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Is feedback?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Subscription change?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Button pressed?": {
+      "main": [
+        [
+          {
+            "node": "Answer button",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is question?": {
+      "main": [
+        [
+          {
+            "node": "Typing",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Has screen?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has screen?": {
+      "main": [
+        [
+          {
+            "node": "Show screen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Typing": {
+      "main": [
+        [
+          {
+            "node": "Ask OKUConnect",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ask OKUConnect": {
+      "main": [
+        [
+          {
+            "node": "Format answer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format answer": {
+      "main": [
+        [
+          {
+            "node": "Send answer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send answer": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Send plain fallback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is feedback?": {
+      "main": [
+        [
+          {
+            "node": "Feedback row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Feedback row": {
+      "main": [
+        [
+          {
+            "node": "Save feedback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Subscription change?": {
+      "main": [
+        [
+          {
+            "node": "Save subscription",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "ca245fe6-08b8-42ed-9b51-859354d45351",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "REDACTED"
+  },
+  "nodeGroups": [],
+  "id": "Za2FGuzV6V2Ww48h",
+  "tags": []
+}

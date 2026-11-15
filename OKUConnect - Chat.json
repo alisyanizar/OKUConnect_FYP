@@ -1,0 +1,331 @@
+{
+  "name": "OKUConnect - Chat",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "mode": "webhook",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -224,
+        656
+      ],
+      "id": "4033131f-29d8-478c-9472-bce7b29098db",
+      "name": "When chat message received",
+      "webhookId": "dadad677-c640-43a4-b373-19530771ffc9"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "builtInTools": {},
+        "options": {
+          "temperature": 0.2
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        816
+      ],
+      "id": "35fabd61-4893-41b7-9ee7-bb58cf8fd317",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        144,
+        816
+      ],
+      "id": "70fc4dfa-4c48-42bc-a1f5-138c6a1d2699",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "You are OKUConnect, a friendly assistant that helps OKU (Orang Kurang Upaya / persons with disabilities) in Malaysia, and their caregivers, find information about support, aid, rights and services.\n\nSCOPE (most important rule):\nYou ONLY answer questions about support, aid, rights, benefits and services for OKU in Malaysia, using information from the OKU knowledge base tool.\n- If the question is not about OKU support, do NOT answer it, even if you know the answer. Reply only:\n  English: \"Sorry, I can only help with questions about OKU support, aid and rights in Malaysia. For other matters, please contact the relevant agency.\"\n  Bahasa Malaysia: \"Maaf, saya hanya boleh membantu soalan berkaitan sokongan, bantuan dan hak OKU di Malaysia. Untuk perkara lain, sila hubungi agensi berkaitan.\"\n- If the question is about OKU support but the knowledge base does not contain the answer, say you do not have that information and suggest contacting the relevant agency (for example JKM, PERKESO or the nearest Pejabat Kebajikan Masyarakat). Never fill gaps with your own knowledge.\n\nRULES:\n1. ALWAYS search the OKU knowledge base tool before answering.\n2. Answer ONLY using information found in the knowledge base. Never guess amounts, dates, eligibility rules or procedures.\n3. LANGUAGE: Look only at the language of the user's latest message. If it is in English, answer fully in English, translating knowledge base information if needed. If it is in Bahasa Malaysia, answer fully in Bahasa Malaysia. Keep official names (e.g. Kad OKU, Jabatan Kebajikan Masyarakat, PERKESO) in their original form.\n4. Use simple, plain language with short sentences. Use short numbered steps for procedures.\n5. Be warm and respectful. Never make assumptions about the user's disability.\n6. SOURCES: End every answer with a \"Source\" line (or \"Sumber\" in Bahasa Malaysia) listing the source_name and source_url of the documents you used. Only list sources you actually used. Never invent a source or link.\n7. DATES: If the sources include an effective_date, mention it (e.g. \"Information as of 13/3/2026\"). If two sources give different figures, use the one with the most recent effective_date and say so."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        0,
+        656
+      ],
+      "id": "2f0c7664-d46f-4865-a3e0-1b8f55827f3f",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Searches the OKUConnect knowledge base of official Malaysian information about OKU (persons with disabilities), including JKM aid, Kad OKU registration, PERKESO/SOCSO benefits and OKU rights. Use this for every question about OKU support.",
+        "tableName": {
+          "__rl": true,
+          "value": "documents",
+          "mode": "list",
+          "cachedResultName": "documents"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        352,
+        736
+      ],
+      "id": "0df5814e-a87b-4997-b12b-bccc9c8eb5ea",
+      "name": "Supabase Vector Store",
+      "credentials": {
+        "supabaseApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        448,
+        944
+      ],
+      "id": "2b763531-0b3d-428e-ba38-747cec548813",
+      "name": "Embeddings OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5e9cb0b5-0e10-4971-b126-5a71f0d7fa0b",
+              "name": "channel",
+              "value": "={{ ($('When chat message received').item.json.sessionId || '').startsWith('tg-') ? 'telegram' : 'website' }}",
+              "type": "string"
+            },
+            {
+              "id": "95ca82c4-9506-4fa0-8753-4696eb1051f4",
+              "name": "session",
+              "value": "={{ String($('When chat message received').item.json.sessionId || 'unknown').hash('sha256').slice(0, 12) }}",
+              "type": "string"
+            },
+            {
+              "id": "52870c7a-b3b4-49e2-a233-1eb38eb8e553",
+              "name": "language",
+              "value": "={{ /\\b(yang|dan|untuk|saya|bagaimana|apakah|boleh|bolehkah|bantuan|cara|siapa|manakah)\\b/i.test($('When chat message received').item.json.chatInput || '') ? 'bm' : 'en' }}",
+              "type": "string"
+            },
+            {
+              "id": "06c99793-7b94-45ff-8418-850da3727c2f",
+              "name": "question",
+              "value": "={{ $('When chat message received').item.json.chatInput }}",
+              "type": "string"
+            },
+            {
+              "id": "b1e3b889-f6ae-4e6f-b533-2dc83bfb7eeb",
+              "name": "answer",
+              "value": "={{ ($('AI Agent').item.json.output || '') }}",
+              "type": "string"
+            },
+            {
+              "id": "9566f4b0-3b51-4057-84cf-58d05d2aba04",
+              "name": "sources",
+              "value": "={{ (($('AI Agent').item.json.output || '').match(/https?:\\/\\/[^\\s)\\]>]+/g) || []).join('\\n') }}",
+              "type": "string"
+            },
+            {
+              "id": "244c0e3b-2bbc-4baf-a0bc-3ef33f12fc07",
+              "name": "status",
+              "value": "={{ /can only help|hanya boleh membantu/i.test(($('AI Agent').item.json.output || '')) ? 'out_of_scope' : (/(do not|don't) have (that|this|any) information|tidak mempunyai maklumat|tiada maklumat/i.test(($('AI Agent').item.json.output || '')) ? 'no_info' : 'answered') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        336,
+        448
+      ],
+      "id": "6fc82495-d411-46ec-bba4-edbe1252fd2f",
+      "name": "Log row"
+    },
+    {
+      "parameters": {
+        "tableId": "chat_logs",
+        "dataToSend": "autoMapInputData"
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        560,
+        448
+      ],
+      "id": "f34c1289-5379-40b1-a3f9-77a6da61268b",
+      "name": "Save log",
+      "credentials": {
+        "supabaseApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Supabase account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0e593b2a-df9e-4acc-bc9c-59a460a4b97c",
+              "name": "output",
+              "value": "={{ $('AI Agent').item.json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        784,
+        448
+      ],
+      "id": "ef0a6fd6-e709-44af-9ed4-fd00b2d74d8a",
+      "name": "Reply"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase Vector Store": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Log row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log row": {
+      "main": [
+        [
+          {
+            "node": "Save log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save log": {
+      "main": [
+        [
+          {
+            "node": "Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "950738c2-d6a2-4ab4-ba4e-31c6355ab7f3",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "REDACTED"
+  },
+  "nodeGroups": [],
+  "id": "zY9T1HY05ts0PoJk",
+  "tags": []
+}

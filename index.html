@@ -1,0 +1,772 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Home – OKUConnect</title>
+    <meta
+      name="description"
+      content="Information on OKU aid, rights and services in Malaysia, in English and Bahasa Malaysia."
+    />
+    <meta name="theme-color" content="#0D3B7C" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <!-- Icon set (Lucide, as used in the Figma mockup). Decorative: every use is aria-hidden. -->
+    <svg xmlns="http://www.w3.org/2000/svg" style="display: none">
+      <symbol id="i-bot" viewBox="0 0 24 24">
+        <path d="M12 8V4H8" />
+        <rect width="16" height="12" x="4" y="8" rx="2" />
+        <path d="M2 14h2" />
+        <path d="M20 14h2" />
+        <path d="M15 13v2" />
+        <path d="M9 13v2" />
+      </symbol>
+      <symbol id="i-send" viewBox="0 0 24 24">
+        <path
+          d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"
+        />
+        <path d="m21.854 2.147-10.94 10.939" />
+      </symbol>
+      <symbol id="i-heart" viewBox="0 0 24 24">
+        <path
+          d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5"
+        />
+      </symbol>
+      <symbol id="i-shield" viewBox="0 0 24 24">
+        <path
+          d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"
+        />
+      </symbol>
+      <symbol id="i-shield-check" viewBox="0 0 24 24">
+        <path
+          d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"
+        />
+        <path d="m9 12 2 2 4-4" />
+      </symbol>
+      <symbol id="i-users" viewBox="0 0 24 24">
+        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+        <path d="M16 3.128a4 4 0 0 1 0 7.744" />
+        <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+        <circle cx="9" cy="7" r="4" />
+      </symbol>
+      <symbol id="i-arrow-right" viewBox="0 0 24 24">
+        <path d="M5 12h14" />
+        <path d="m12 5 7 7-7 7" />
+      </symbol>
+      <symbol id="i-globe" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="10" />
+        <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
+        <path d="M2 12h20" />
+      </symbol>
+      <symbol id="i-message" viewBox="0 0 24 24">
+        <path
+          d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"
+        />
+      </symbol>
+      <symbol id="i-id-card" viewBox="0 0 24 24">
+        <path d="M13 19a4 4 0 00-8 0" />
+        <path d="M16 10h2" />
+        <path d="M16 14h2" />
+        <circle cx="9" cy="12" r="3" />
+        <rect x="2" y="5" width="20" height="14" rx="2" />
+      </symbol>
+      <symbol id="i-briefcase" viewBox="0 0 24 24">
+        <path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+        <rect width="20" height="14" x="2" y="6" rx="2" />
+      </symbol>
+      <symbol id="i-piggy" viewBox="0 0 24 24">
+        <path
+          d="M11 17h3v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-3a3.16 3.16 0 0 0 2-2h1a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1h-1a5 5 0 0 0-2-4V3a4 4 0 0 0-3.2 1.6l-.3.4H11a6 6 0 0 0-6 6v1a5 5 0 0 0 2 4v3a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1z"
+        />
+        <path d="M16 10h.01" />
+        <path d="M2 8v1a2 2 0 0 0 2 2h1" />
+      </symbol>
+      <symbol id="i-external" viewBox="0 0 24 24">
+        <path d="M15 3h6v6" />
+        <path d="M10 14 21 3" />
+        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+      </symbol>
+      <symbol id="i-volume" viewBox="0 0 24 24">
+        <path
+          d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"
+        />
+        <path d="M16 9a5 5 0 0 1 0 6" />
+        <path d="M19.364 18.364a9 9 0 0 0 0-12.728" />
+      </symbol>
+      <symbol id="i-pen" viewBox="0 0 24 24">
+        <path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+        <path
+          d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"
+        />
+      </symbol>
+      <symbol id="i-chevron" viewBox="0 0 24 24">
+        <path d="m6 9 6 6 6-6" />
+      </symbol>
+      <symbol id="i-type" viewBox="0 0 24 24">
+        <path d="M12 4v16" />
+        <path d="M4 7V5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v2" />
+        <path d="M9 20h6" />
+      </symbol>
+      <symbol id="i-contrast" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="10" />
+        <path d="M12 18a6 6 0 0 0 0-12v12z" />
+      </symbol>
+      <symbol id="i-bulb" viewBox="0 0 24 24">
+        <path
+          d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"
+        />
+        <path d="M9 18h6" />
+        <path d="M10 22h4" />
+      </symbol>
+      <symbol id="i-info" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="10" />
+        <path d="M12 16v-4" />
+        <path d="M12 8h.01" />
+      </symbol>
+      <symbol id="i-copy" viewBox="0 0 24 24">
+        <rect width="14" height="14" x="8" y="8" rx="2" />
+        <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+      </symbol>
+      <symbol id="i-check" viewBox="0 0 24 24">
+        <path d="M20 6 9 17l-5-5" />
+      </symbol>
+    </svg>
+
+    <!-- WCAG 2.4.1 Bypass Blocks -->
+    <a class="skip-link" href="#main" data-i18n="skipMain"
+      >Skip to main content</a
+    >
+
+    <header class="site-header">
+      <!-- Language and display settings -->
+      <div class="settings-bar">
+        <div class="wrap settings-inner">
+          <!-- Label stays in both languages so anyone can find it -->
+          <div class="setting" role="group" aria-labelledby="lang-label">
+            <span id="lang-label" class="setting-label">
+              <svg class="icon" aria-hidden="true"><use href="#i-globe" /></svg>
+              Language / Bahasa
+            </span>
+            <div class="segmented">
+              <button
+                type="button"
+                data-lang="en"
+                lang="en"
+                aria-pressed="true"
+              >
+                English
+              </button>
+              <button
+                type="button"
+                data-lang="ms"
+                lang="ms"
+                aria-pressed="false"
+              >
+                Bahasa Malaysia
+              </button>
+            </div>
+          </div>
+
+          <!-- On phones, text size and contrast sit behind this button -->
+          <button
+            type="button"
+            id="display-toggle"
+            class="display-toggle"
+            aria-expanded="false"
+            aria-controls="display-settings"
+          >
+            <svg class="icon" aria-hidden="true"><use href="#i-type" /></svg>
+            <span data-i18n="display">Display</span>
+            <svg class="icon chev" aria-hidden="true">
+              <use href="#i-chevron" />
+            </svg>
+          </button>
+
+          <div id="display-settings" class="display-settings">
+            <div class="setting" role="group" aria-labelledby="size-label">
+              <span id="size-label" class="setting-label">
+                <svg class="icon" aria-hidden="true">
+                  <use href="#i-type" />
+                </svg>
+                <span data-i18n="sizeLabel">Text size</span>
+              </span>
+              <div class="segmented">
+                <button
+                  type="button"
+                  data-size="normal"
+                  aria-pressed="true"
+                  data-i18n="sizeNormal"
+                >
+                  Normal
+                </button>
+                <button
+                  type="button"
+                  data-size="large"
+                  aria-pressed="false"
+                  data-i18n="sizeLarge"
+                >
+                  Large
+                </button>
+                <button
+                  type="button"
+                  data-size="larger"
+                  aria-pressed="false"
+                  data-i18n="sizeLarger"
+                >
+                  Larger
+                </button>
+              </div>
+            </div>
+            <button
+              type="button"
+              id="contrast-btn"
+              class="toggle"
+              aria-pressed="false"
+            >
+              <svg class="icon" aria-hidden="true">
+                <use href="#i-contrast" />
+              </svg>
+              <span data-i18n="contrast">High contrast</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Brand and main menu: the same on every page -->
+      <div class="navbar">
+        <div class="wrap navbar-inner">
+          <a class="brand-link" href="#home">
+            <span class="brand-badge" aria-hidden="true">OKU</span>
+            <span class="brand-text">
+              <span class="brand">OKUConnect</span>
+              <span class="tagline" data-i18n="tagline"
+                >Information Without Limits</span
+              >
+            </span>
+          </a>
+
+          <nav aria-label="Main menu" data-i18n-aria="navLabel">
+            <ul class="nav-list">
+              <li>
+                <a href="#home" data-page-link="home" data-i18n="navHome"
+                  >Home</a
+                >
+              </li>
+              <li>
+                <a href="#chat" data-page-link="chat" data-i18n="navChat"
+                  >AI Chatbot</a
+                >
+              </li>
+              <li>
+                <a href="#links" data-page-link="links" data-i18n="navLinks"
+                  >Official Websites</a
+                >
+              </li>
+              <li>
+                <a href="#help" data-page-link="help" data-i18n="navHelp"
+                  >How to Use</a
+                >
+              </li>
+            </ul>
+          </nav>
+
+          <ul
+            class="agency-chips"
+            aria-label="Information sources"
+            data-i18n-aria="sourcesLabel"
+          >
+            <li>JKM</li>
+            <li>PERKESO</li>
+            <li>KWSP</li>
+            <li>KKM</li>
+          </ul>
+        </div>
+      </div>
+    </header>
+
+    <main id="main" tabindex="-1">
+      <!-- ===================== HOME ===================== -->
+      <section
+        id="page-home"
+        class="page"
+        data-page="home"
+        aria-labelledby="home-title"
+      >
+        <div class="hero">
+          <div class="hero-rings" aria-hidden="true"></div>
+          <div class="wrap hero-inner">
+            <div class="hero-main">
+              <h1 id="home-title" tabindex="-1" data-i18n="heading">
+                Everything you need, in one place.
+              </h1>
+              <p class="hero-sub" data-i18n="intro">
+                Aid schemes, legal rights and agency contacts for OKU in
+                Malaysia, explained simply.
+              </p>
+
+              <!-- Functional version of the mockup's hero search: sends the question to the chatbot -->
+              <form id="hero-form" class="hero-form" novalidate>
+                <label
+                  for="hero-question"
+                  class="visually-hidden"
+                  data-i18n="heroLabel"
+                  >Ask the OKU AI Assistant a question</label
+                >
+                <div class="hero-input">
+                  <svg class="icon" aria-hidden="true">
+                    <use href="#i-message" />
+                  </svg>
+                  <input
+                    id="hero-question"
+                    type="text"
+                    autocomplete="off"
+                    data-i18n-placeholder="heroPlaceholder"
+                    placeholder="Type your question…"
+                    aria-describedby="hero-error"
+                  />
+                </div>
+                <button type="submit" class="btn-red">
+                  <span data-i18n="heroButton">Ask</span>
+                  <svg class="icon" aria-hidden="true">
+                    <use href="#i-arrow-right" />
+                  </svg>
+                </button>
+              </form>
+              <p id="hero-error" class="hero-error" role="alert"></p>
+
+              <div class="hero-meta">
+                <p class="hero-pill">
+                  <svg class="icon" aria-hidden="true">
+                    <use href="#i-globe" />
+                  </svg>
+                  <span data-i18n="heroPill"
+                    >Bahasa Malaysia &amp; English</span
+                  >
+                </p>
+                <!-- Stats (true figures about this site only) -->
+                <ul
+                  class="stats"
+                  aria-label="About OKUConnect"
+                  data-i18n-aria="statsLabel"
+                >
+                  <li>
+                    <span class="stat-value">6</span>
+                    <span class="stat-label" data-i18n="statTopics"
+                      >Topics</span
+                    >
+                  </li>
+                  <li>
+                    <span class="stat-value">4</span>
+                    <span class="stat-label" data-i18n="statAgencies"
+                      >Official agencies</span
+                    >
+                  </li>
+                  <li>
+                    <span class="stat-value">2</span>
+                    <span class="stat-label" data-i18n="statLangs"
+                      >Languages</span
+                    >
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- One-tap questions: each one opens the chatbot and sends it -->
+            <aside class="hero-panel" aria-labelledby="hero-popular-title">
+              <h2 id="hero-popular-title" class="hero-panel-title">
+                <svg class="icon" aria-hidden="true">
+                  <use href="#i-bulb" />
+                </svg>
+                <span data-i18n="heroPopular">Popular questions</span>
+              </h2>
+              <ul id="hero-questions" class="hero-questions"></ul>
+            </aside>
+          </div>
+        </div>
+
+        <div class="wrap home-body">
+          <!-- AI banner, as in the mockup -->
+          <section class="ai-banner" aria-labelledby="cta-title">
+            <div class="ai-banner-icon" aria-hidden="true">
+              <svg class="icon"><use href="#i-bot" /></svg>
+            </div>
+            <div class="ai-banner-text">
+              <h2 id="cta-title" data-i18n="ctaTitle">OKU AI Assistant</h2>
+              <p class="ai-banner-sub" data-i18n="ctaSub">
+                Ask a question in BM or English
+              </p>
+              <p class="ai-banner-trust">
+                <svg class="icon" aria-hidden="true">
+                  <use href="#i-shield-check" />
+                </svg>
+                <span data-i18n="ctaKicker">Answers from official sources</span>
+              </p>
+            </div>
+            <a class="btn-white" href="#chat">
+              <span data-i18n="ctaButton">Start Chat</span>
+              <svg class="icon" aria-hidden="true">
+                <use href="#i-arrow-right" />
+              </svg>
+            </a>
+          </section>
+
+          <section aria-labelledby="home-topics-title">
+            <div class="section-head">
+              <h2
+                id="home-topics-title"
+                class="section-title"
+                data-i18n="homeTopicsHeading"
+              >
+                Browse by topic
+              </h2>
+              <p class="section-sub" data-i18n="homeTopicsHint">
+                Choose a topic to see questions you can ask the assistant.
+              </p>
+            </div>
+            <ul id="topic-grid" class="topic-grid"></ul>
+          </section>
+
+          <p class="note">
+            <svg class="icon" aria-hidden="true"><use href="#i-info" /></svg>
+            <span data-i18n="introNote"
+              >Answers come from official information. Before you make an
+              important decision, check with the agency.</span
+            >
+          </p>
+        </div>
+      </section>
+
+      <!-- ===================== AI CHATBOT ===================== -->
+      <section
+        id="page-chat"
+        class="page"
+        data-page="chat"
+        aria-labelledby="chat-title"
+        hidden
+      >
+        <div class="wrap page-wrap">
+          <div class="page-head">
+            <div class="title-row">
+              <h1 id="chat-title" tabindex="-1" data-i18n="chatHeading">
+                OKU AI Assistant
+              </h1>
+              <span class="pill pill-green" data-i18n="chatBadge"
+                >BM &amp; EN</span
+              >
+            </div>
+            <p class="page-sub" data-i18n="chatSub">
+              Ask in Bahasa Malaysia or English. Answers come from official
+              agency information.
+            </p>
+          </div>
+
+          <div class="chat-layout">
+            <!-- Topic sidebar: prompt guidance -->
+            <aside class="sidebar" aria-labelledby="sidebar-title">
+              <h2 id="sidebar-title" class="sidebar-title">
+                <svg class="icon" aria-hidden="true">
+                  <use href="#i-bulb" />
+                </svg>
+                <span data-i18n="sidebarHeading">Suggested questions</span>
+              </h2>
+              <!-- Phone only: the sidebar folds away so the chat comes first -->
+              <button
+                type="button"
+                id="sidebar-toggle"
+                class="sidebar-toggle"
+                aria-expanded="false"
+                aria-controls="sidebar-body"
+              >
+                <span class="sidebar-toggle-label">
+                  <svg class="icon" aria-hidden="true">
+                    <use href="#i-bulb" />
+                  </svg>
+                  <span data-i18n="sidebarHeading">Suggested questions</span>
+                </span>
+                <svg class="icon chev" aria-hidden="true">
+                  <use href="#i-chevron" />
+                </svg>
+              </button>
+              <div id="sidebar-body" class="sidebar-body">
+                <p class="sidebar-hint" data-i18n="sidebarHint">
+                  Open a topic and choose a question. It is sent for you.
+                </p>
+                <div id="topic-list" class="topic-list"></div>
+              </div>
+            </aside>
+
+            <!-- Conversation window -->
+            <div class="chat-panel">
+              <div class="chat-head">
+                <div class="chat-avatar" aria-hidden="true">
+                  <svg class="icon"><use href="#i-bot" /></svg>
+                </div>
+                <div class="chat-head-text">
+                  <h2 id="conv-title" data-i18n="convHeading">OKU Assistant</h2>
+                  <p data-i18n="convSub">
+                    Answers from official sources · BM &amp; EN
+                  </p>
+                </div>
+                <button type="button" id="new-chat" class="btn-ghost" hidden>
+                  <svg class="icon" aria-hidden="true">
+                    <use href="#i-pen" />
+                  </svg>
+                  <span data-i18n="newChat">New conversation</span>
+                </button>
+              </div>
+
+              <!-- Scrollable area is keyboard focusable (WCAG 2.1.1) -->
+              <div
+                class="chat-scroll"
+                id="chat-scroll"
+                tabindex="0"
+                role="region"
+                aria-labelledby="conv-title"
+              >
+                <!-- Static welcome, as in the mockup; not sent to n8n -->
+                <div class="message bot welcome">
+                  <p class="who">
+                    <svg class="icon" aria-hidden="true">
+                      <use href="#i-bot" /></svg
+                    ><span data-i18n="botName">OKU Assistant</span>
+                  </p>
+                  <div class="text">
+                    <p data-i18n="welcome">
+                      Welcome! I'm the OKU AI Assistant. Type a question below,
+                      or choose a suggested question.
+                    </p>
+                  </div>
+                </div>
+                <!-- Starter questions: hidden once the conversation begins -->
+                <div id="welcome-chips" class="welcome-chips">
+                  <p
+                    id="welcome-chips-label"
+                    class="welcome-chips-label"
+                    data-i18n="tryAsking"
+                  >
+                    Try asking
+                  </p>
+                  <ul
+                    id="welcome-list"
+                    class="chip-list"
+                    aria-labelledby="welcome-chips-label"
+                  ></ul>
+                </div>
+                <div id="chat-log" class="chat-log"></div>
+              </div>
+
+              <form id="chat-form" class="chat-form" novalidate>
+                <label for="question" class="visually-hidden" data-i18n="label"
+                  >Your question</label
+                >
+                <p id="question-error" class="field-error" role="alert"></p>
+                <div class="composer">
+                  <textarea
+                    id="question"
+                    name="question"
+                    rows="1"
+                    aria-describedby="question-hint question-error"
+                    data-i18n-placeholder="placeholder"
+                    placeholder="Type your question…"
+                    required
+                  ></textarea>
+                  <button type="submit" id="send-btn" class="btn-send">
+                    <svg class="icon" aria-hidden="true">
+                      <use href="#i-send" />
+                    </svg>
+                    <span data-i18n="send">Send</span>
+                  </button>
+                </div>
+                <p id="question-hint" class="hint" data-i18n="hint">
+                  Write in English or Bahasa Malaysia. Press Enter to send.
+                  Press Shift and Enter for a new line.
+                </p>
+              </form>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== OFFICIAL WEBSITES ===================== -->
+      <section
+        id="page-links"
+        class="page"
+        data-page="links"
+        aria-labelledby="links-title"
+        hidden
+      >
+        <div class="wrap page-wrap">
+          <div class="page-head">
+            <h1 id="links-title" tabindex="-1" data-i18n="linksHeading">
+              Official websites
+            </h1>
+            <p class="page-sub" data-i18n="linksIntro">
+              Go to the agency website to apply or to check details.
+            </p>
+          </div>
+          <ul id="link-list" class="link-list"></ul>
+        </div>
+      </section>
+
+      <!-- ===================== HOW TO USE ===================== -->
+      <section
+        id="page-help"
+        class="page"
+        data-page="help"
+        aria-labelledby="help-title"
+        hidden
+      >
+        <div class="wrap page-wrap">
+          <div class="page-head">
+            <h1 id="help-title" tabindex="-1" data-i18n="helpHeading">
+              How to use this site
+            </h1>
+            <p class="page-sub" data-i18n="helpSub">
+              Four steps to get an answer, and some tips.
+            </p>
+          </div>
+
+          <section aria-labelledby="steps-title" class="steps-section">
+            <h2
+              id="steps-title"
+              class="section-title"
+              data-i18n="helpStepsHeading"
+            >
+              Getting an answer
+            </h2>
+            <ol class="steps">
+              <li class="step c-blue">
+                <span class="step-badge"
+                  ><span class="visually-hidden" data-i18n="stepWord"
+                    >Step</span
+                  >
+                  1</span
+                >
+                <p data-i18n="step1">Go to AI Chatbot.</p>
+              </li>
+              <li class="step c-teal">
+                <span class="step-badge"
+                  ><span class="visually-hidden" data-i18n="stepWord"
+                    >Step</span
+                  >
+                  2</span
+                >
+                <p data-i18n="step2">
+                  Choose a suggested question, or type your own question.
+                </p>
+              </li>
+              <li class="step c-green">
+                <span class="step-badge"
+                  ><span class="visually-hidden" data-i18n="stepWord"
+                    >Step</span
+                  >
+                  3</span
+                >
+                <p data-i18n="step3">Press Send and wait for the answer.</p>
+              </li>
+              <li class="step c-amber">
+                <span class="step-badge"
+                  ><span class="visually-hidden" data-i18n="stepWord"
+                    >Step</span
+                  >
+                  4</span
+                >
+                <p data-i18n="step4">
+                  Check important details with the agency. Use Official
+                  Websites.
+                </p>
+              </li>
+            </ol>
+          </section>
+
+          <div class="help-bottom">
+            <section class="tips-card" aria-labelledby="tips-title">
+              <h2 id="tips-title" class="section-title">
+                <span class="icon-chip" aria-hidden="true"
+                  ><svg class="icon"><use href="#i-bulb" /></svg
+                ></span>
+                <span data-i18n="helpTipsHeading">Tips</span>
+              </h2>
+              <ul class="help-list">
+                <li data-i18n="help1">Ask short questions, one at a time.</li>
+                <li data-i18n="help2">
+                  Use the Tab key to move around the page. Press Enter to
+                  choose.
+                </li>
+                <li data-i18n="help3">
+                  Screen readers will read each new answer for you.
+                </li>
+                <li data-i18n="help4">
+                  Use Text size and High contrast at the top of the page.
+                </li>
+                <li data-i18n="help5">
+                  You can change the language or page at any time. Your
+                  conversation stays.
+                </li>
+                <li data-i18n="help6">
+                  Do not type your IC number or other private details.
+                </li>
+              </ul>
+            </section>
+
+            <section
+              class="ai-banner ai-banner--compact"
+              aria-labelledby="help-cta-title"
+            >
+              <div class="ai-banner-icon" aria-hidden="true">
+                <svg class="icon"><use href="#i-bot" /></svg>
+              </div>
+              <div class="ai-banner-text">
+                <h2 id="help-cta-title" data-i18n="ctaTitle">
+                  OKU AI Assistant
+                </h2>
+                <p class="ai-banner-sub" data-i18n="ctaSub">
+                  Ask a question in BM or English
+                </p>
+              </div>
+              <a class="btn-white" href="#chat">
+                <span data-i18n="ctaButton">Start Chat</span>
+                <svg class="icon" aria-hidden="true">
+                  <use href="#i-arrow-right" />
+                </svg>
+              </a>
+            </section>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- WCAG 4.1.3 Status Messages -->
+    <div
+      id="status"
+      class="visually-hidden"
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
+    ></div>
+
+    <footer class="site-footer">
+      <div class="wrap footer-inner">
+        <div class="footer-brand">
+          <span class="brand-badge brand-badge--sm" aria-hidden="true"
+            >OKU</span
+          >
+          <span class="footer-name">OKUConnect</span>
+        </div>
+        <p data-i18n="footer">
+          OKUConnect is a final year project prototype. It does not replace
+          advice from government agencies.
+        </p>
+      </div>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>
