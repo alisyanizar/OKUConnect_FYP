@@ -3,8 +3,8 @@
 **A bilingual (Bahasa Malaysia / English) disability support information assistant for OKU in Malaysia**
 
 Final Year Project (FYP II) – Bachelor of Information Systems (Hons), Universiti Teknologi PETRONAS
-Author: Nur Alisya Nadhra (22000734)
-Supervisor: *[Supervisor name]*
+Author: Nur Alisya Nadhra binti Ahmad Nizar (22000734)
+Supervisor: TS. Dr. Emelia Akashah binti Patah Akhir
 
 ---
 
@@ -142,10 +142,7 @@ OKUConnect is an academic prototype. It gives general information from official 
 
 If you refer to this work, please cite:
 
-> N. A. Nadhra, "OKUConnect: A bilingual disability support information assistant for OKU in Malaysia," Final Year Project dissertation, Universiti Teknologi PETRONAS, 2026. [Online]. Available: https://github.com/*[username]*/okuconnect
+> N. A. Nadhra, "OKUConnect: A bilingual disability support information assistant for OKU in Malaysia," Final Year Project dissertation, Universiti Teknologi PETRONAS, 2026. [Online]. Available: https://github.com/*alsiyanizar*/okuconnect
 
 ---
 
-## Licence
-
-*[Optional: e.g. MIT Licence. Add a `LICENSE` file if you choose one.]*
